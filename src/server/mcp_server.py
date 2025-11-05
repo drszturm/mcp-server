@@ -10,6 +10,7 @@ from src.models.mcp_models import (
 )
 from src.tools.chat_tools import ChatTools
 from src.services.deepseek_service import deepseek_service
+from src.services.langchain_service import langchain_service
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,10 @@ class MCPServer:
                 "capabilities": {"tools": True, "resources": False, "prompts": False},
             }
 
+        @self.app.get("/lang")
+        async def get_lang():
+            return langchain_service.invoke("San Francisco")
+
     def _setup_middleware(self):
         @self.app.middleware("http")
         async def log_requests(request, call_next):
@@ -70,6 +75,8 @@ class MCPServer:
     async def startup(self):
         logger.info("Starting DeepSeek MCP Server...")
         await deepseek_service.initialize()
+        langchain_service.initialize()
+
         logger.info("DeepSeek service initialized")
 
     async def shutdown(self):
